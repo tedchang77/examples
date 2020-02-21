@@ -48,6 +48,9 @@ function authenticateRequest(req: awsx.apigateway.Request): awsx.apigateway.Resp
 }
 
 const webhookHandler = new awsx.apigateway.API("pulumi-webhook-handler", {
+    restApiArgs: {
+        binaryMediaTypes: ["application/json"],
+    },
     routes: [{
         path: "/",
         method: "GET",
@@ -64,9 +67,9 @@ const webhookHandler = new awsx.apigateway.API("pulumi-webhook-handler", {
             if (authenticateResult) {
                 return authenticateResult;
             }
-
             const webhookKind = req.headers !== undefined ? req.headers["pulumi-webhook-kind"] : "";
-            const payload = req.body!.toString();
+            const bytes = req.body!.toString();
+            const payload = Buffer.from(bytes, 'base64').toString();
             const parsedPayload = JSON.parse(payload);
             const prettyPrintedPayload = JSON.stringify(parsedPayload, null, 2);
 

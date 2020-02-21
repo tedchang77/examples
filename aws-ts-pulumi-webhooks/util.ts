@@ -17,9 +17,51 @@ export function formatSlackMessage(kind: string, payload: object, messageArgs: C
         case "stack_preview":
         case "stack_update":
             return formatUpdate(kind, payload, cloned);
+        case "policy_violation":
+            return formatPolicyEvent(payload, cloned);
         default:
             return cloned;
     }
+}
+
+function formatPolicyEvent(payload: any, args: ChatPostMessageArguments): ChatPostMessageArguments {
+    const re = new RegExp("<{%reset%}>", "g");
+    const summary = `${payload.organization.githubLogin}/${payload.projectName}/${payload.stackName} Policy Violation 😱😱😱😱😱😱😱`;
+    args.text = summary;
+    args.attachments = [
+        {
+            fallback: summary,
+            color: resultColor("failed"),
+            fields: [
+                {
+                    title: "User",
+                    value: `${payload.user.name} (${payload.user.githubLogin})`,
+                    short: true,
+                },
+                {
+                    title: "Stack",
+                    value: `${payload.organization.githubLogin}/${payload.stackName}`,
+                    short: true,
+                },
+                {
+                    title: "Permalink",
+                    value: payload.updateUrl,
+                    short: false,
+                },
+                {
+                    title: "Enforcement Level",
+                    value: payload.policyEvent.enforcementLevel,
+                    short: false,
+                },
+                {
+                    title: "Message",
+                    value: payload.policyEvent.message.replace(re, ""),
+                    short: false,
+                }
+            ],
+        },
+    ];
+    return args;
 }
 
 function formatStack(payload: any, args: ChatPostMessageArguments): ChatPostMessageArguments {
