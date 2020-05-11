@@ -31,6 +31,7 @@ env:
   GOOGLE_ZONE: "us-central1-a"
   PACKET_AUTH_TOKEN: ${{ secrets.PACKET_AUTH_TOKEN }}
   LINODE_API_TOKEN: ${{ secrets.LINODE_API_TOKEN }}
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 jobs:
   released:
     strategy:
@@ -100,6 +101,10 @@ jobs:
         run: make ensure
       - name: Run ${{ matrix.clouds }}${{ matrix.languages }} Tests
         run: make specific_test_set TestSet=${{ matrix.clouds }}${{ matrix.languages }}
+      - uses: 8398a7/action-slack@v3
+        with:
+          fields: repo,message,commit,author,action,ref
+        if: job.status == 'failure''
   lint:
     strategy:
       matrix:
@@ -123,6 +128,10 @@ jobs:
         run: make install
       - name: Lint typescript files
         run: make lint
+      - uses: 8398a7/action-slack@v3
+        with:
+          fields: repo,message,commit,author,action,ref
+        if: job.status == 'failure'
   test-infra-setup:
     strategy:
       fail-fast: false
@@ -325,3 +334,7 @@ jobs:
           pulumi stack -s "${{ secrets.PULUMI_TEST_OWNER }}/${{ github.sha }}" -C misc/scripts/testinfra/ output kubeconfig >~/.kube/config
       - name: Run ${{ matrix.tests-set }} Tests
         run: make specific_test_set TestSet=Kubernetes
+      - uses: 8398a7/action-slack@v3
+        with:
+          fields: repo,message,commit,author,action,ref
+        if: job.status == 'failure'
