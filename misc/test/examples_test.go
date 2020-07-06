@@ -309,6 +309,7 @@ func TestAccAwsPyS3Folder(t *testing.T) {
 }
 
 func TestAccAwsPyServerlessRaw(t *testing.T) {
+	integration.RunCommand(t, "dotnet publish", nil, path.Join(getCwd(t), "..", "..", "aws-py-serverless-raw", "app"), nil)
 	test := getAWSBase(t).
 		With(integration.ProgramTestOptions{
 			Dir: path.Join(getCwd(t), "..", "..", "aws-py-serverless-raw"),
@@ -541,6 +542,7 @@ func TestAccAwsTsS3LambdaCopyZip(t *testing.T) {
 }
 
 func TestAccAwsTsServerlessRaw(t *testing.T) {
+	integration.RunCommand(t, "dotnet publish", nil, path.Join(getCwd(t), "..", "..", "aws-py-serverless-raw", "app"), nil)
 	test := getAWSBase(t).
 		With(integration.ProgramTestOptions{
 			Dir: path.Join(getCwd(t), "..", "..", "aws-ts-serverless-raw"),
@@ -550,7 +552,6 @@ func TestAccAwsTsServerlessRaw(t *testing.T) {
 				})
 			},
 		})
-
 	integration.ProgramTest(t, &test)
 }
 
