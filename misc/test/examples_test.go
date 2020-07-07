@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"path"
 	"strings"
 	"testing"
@@ -317,7 +318,6 @@ func TestAccAwsPyServerlessRaw(t *testing.T) {
 					return assert.Contains(t, body, "{\"Path\":\"hello\",\"Count\":1}")
 				})
 			},
-			RunBuild: true,
 		})
 
 	integration.ProgramTest(t, &test)
@@ -542,6 +542,12 @@ func TestAccAwsTsS3LambdaCopyZip(t *testing.T) {
 }
 
 func TestAccAwsTsServerlessRaw(t *testing.T) {
+	cmd, err := exec.Command("dotnet publish", "app")
+	if err != nil {
+		fmt.Printf("err: %v", err)
+		return
+	}
+	cmd.Run()
 	test := getAWSBase(t).
 		With(integration.ProgramTestOptions{
 			Dir: path.Join(getCwd(t), "..", "..", "aws-ts-serverless-raw"),
@@ -550,7 +556,6 @@ func TestAccAwsTsServerlessRaw(t *testing.T) {
 					return assert.Contains(t, body, "{\"Path\":\"hello\",\"Count\":1}")
 				})
 			},
-			RunBuild: true,
 		})
 	integration.ProgramTest(t, &test)
 }
